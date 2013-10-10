@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.io.PushbackReader;
     
 /**
- *
  * @author matt
- */
+ * github: github.com/msolle
+*/
+
 public class CalcParse {
     CalcScanner calc;
     int nextToken;
@@ -19,65 +20,68 @@ public class CalcParse {
     public CalcParse(File input) throws FileNotFoundException, IOException {
         PushbackReader in = new PushbackReader(new FileReader(input));
         calc = new CalcScanner(in);
-    }
+    }//CalcParse
     
     public void parse () throws IOException{ 
-        nextToken = calc.nextToken();
-        E();
-        if(error) {    
-            System.out.println("Failure!");
+        nextToken = calc.nextToken();//Initial value of nextToken
+        expression();//Begin recursive descent parsing
+        if(error) {
+            System.out.println("Failure!");//Parsing Error
         } else {
             System.out.println("Success!");
-        }
-        
-    }
+        }        
+    }//parse
     
     public void match(int token) throws IOException {
         if(nextToken == token) {
-            nextToken = calc.nextToken();
+            nextToken = calc.nextToken();               //Gets the next token
         } else {
             System.out.print("Error!");
         }
-    }
+    }//match
+
+    public void expression() throws IOException {
+        term();                                         
+        expressionprime();
+    }//expression
     
-    public void E() throws IOException {
-        T();
-        EP();
-    }
-    
-    public void EP() throws IOException {
+    /*Addition Subtraction*/
+    public void expressionprime() throws IOException {
         while(nextToken == Tokens.ADDOP) {
             match(Tokens.ADDOP);
-            T();
-            EP();
+            term();
+            expressionprime();
         }
-    }
+    }//expressionprime
+
+    public void term() throws IOException {
+        factor();
+        termprime();
+    }//term
     
-    public void T() throws IOException {
-        F();
-        TP();
-    }
-    
-    public void TP() throws IOException {
+    /*Multiplication Divides*/
+    public void termprime() throws IOException {
         while(nextToken == Tokens.MULOP) {
             match(Tokens.MULOP);
-            F();
-            T();
+            factor();
+            term();
         }
-    }
-    public void F() throws IOException {
+    }//termprime
+    
+    /*ID Num Parens*/
+    public void factor() throws IOException {
         if(nextToken == Tokens.ID) {
             match(Tokens.ID);
         } else if (nextToken == Tokens.NUMBER) {
             match(Tokens.NUMBER);
         } else if (nextToken == Tokens.LEFTPAREN) {
             match(Tokens.LEFTPAREN);
-            E();
+            expression();
             match(Tokens.RIGHTPAREN);
         } else {
             error = true;
         }
-    }
+    }//factor
     
     public static void main(String[] args) throws FileNotFoundException, IOException {
         if (args.length > 0) {
@@ -87,5 +91,5 @@ public class CalcParse {
         } else { 
             System.out.print("Error! No File Specified");
         }
-    }
-}
+    }//main
+}//CalcParse
